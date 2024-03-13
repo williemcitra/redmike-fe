@@ -1,0 +1,52 @@
+html, body {
+  padding: 0;
+  margin: 0;
+}
+
+NuxtLink {
+  text-decoration: none;
+}
+
+.layout-margin {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+@media screen and (min-width: 600px) {
+  .layout-margin {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .layout-margin {
+    padding-left: 64px;
+    padding-right: 64px;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .layout-margin {
+    padding-left: 120px;
+    padding-right: 120px;
+  }
+}
+
+@media screen and (min-width: 1366px) {
+  .layout-margin {
+    padding-left: 160px;
+    padding-right: 160px;
+  }
+}
+
+@media screen and (min-width: 1600px) {
+  .layout-margin {
+    padding-left: 360px;
+    padding-right: 360px;
+  }
+}
+
+.product-card .p-card-body {
+  padding: 1rem;
+}

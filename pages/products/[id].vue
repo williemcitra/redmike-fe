@@ -24,14 +24,14 @@
         <div class="flex flex-column gap-2">
           <!-- <span class="text-sm text-700">Harga</span> -->
           <span v-if="product && product.variants" class="text-2xl text-primary font-bold">Rp {{
-        product?.variants[0]?.prices[0]?.amount.toLocaleString('id-ID') }}</span>
+        product?.variants[0]?.prices[0]?.amount }}</span>
         </div>
         <div class="flex flex-row align-items-end gap-3">
           <div class="flex flex-column gap-2">
             <small>Qty.</small>
             <Dropdown v-model="order.quantity" class="h-3rem align-items-center" placeholder="Quantity" :options="quantityOptions" />
           </div>
-          <Button class="w-full h-3rem" label="Add to Cart" />
+          <Button class="w-full h-3rem" label="Add to Cart" @click="updateCart" />
           <Button class="w-full h-3rem" type="button" label="Wishlist" icon="pi pi-heart-fill" badge="2" badgeSeverity="primary" outlined />
           <!-- <Button class="w-full h-3rem" label="Wishlist" outlined>
             <i class="pi pi-heart-fill mr-2"></i>
@@ -66,10 +66,12 @@
 <script setup>
 const client = useMedusaClient();
 import ProductSections from '@/components/scrollable/ProductSections.vue';
+import { useCartStore } from '~/store/cart';
 
 definePageMeta({
   layout: 'default'
 })
+const cartStore = useCartStore()
 const order = ref({
   quantity: 1
 })
@@ -79,10 +81,13 @@ const product = ref([])
 const similiarProducts = ref([])
 
 onMounted(async () => {
+
+  // setCartId()
   const handle = route.params.id
   const fetch = await client.products.list({ handle });
   if (fetch?.response?.status === 200 && fetch?.products.length > 0) {
-    product.value = fetch.products[0]
+    console.log(fetch.products)
+    product.value = fetch.products[fetch.products.findIndex(product => product.handle.includes(handle))]
   }
   const fetchSimiliarProducts = await client.products.list();
   console.log(fetchSimiliarProducts)
@@ -90,4 +95,17 @@ onMounted(async () => {
     similiarProducts.value = fetchSimiliarProducts.products
   }
 })
+
+async function createCart() {
+  const response = await cartStore.createCart()
+  cartStore.setCart(response.cart)
+}
+
+async function updateCart() {
+  // console.log(product.value.variants[0].id)
+  const cartId = cartStore.cart.id
+  if (!cartId) await createCart()
+  const response = await cartStore.addItemToCart(cartId, {variant_id: product.value.variants[0].id, quantity: 1})
+  cartStore.setCart(response.cart)
+}
 </script>

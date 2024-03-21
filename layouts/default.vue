@@ -13,15 +13,32 @@
         <Button class="px-4" label="Cari"></Button>
       </InputGroup>
     </div>
-    <div>asdasdsa</div>
+    <div>
+      {{ cartStore.cart.items.length }}
+      <i :v-badge="cartStore.cart.items.length" class="pi pi-envelope cursor-pointer" style="font-size: 2rem" @click="$router.push('/my-cart')" />
+    </div>
   </div>
-  <div class="w-full flex flex-column gap-0" style="padding-top: 108px;">
+  <div class="w-full flex flex-column gap-0" style="padding-top: 144px;">
     <div>
       <router-view />
     </div>
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup>
+import { useCartStore } from '~/store/cart';
+
+const cartStore = useCartStore()
+
+onMounted(async () => {
+  if (!cartStore.cart.id) await createCart()
+})
+
+async function createCart() {
+  const response = await cartStore.createCart()
+  cartStore.setCart(response.cart)
+}
+
+</script>
 
 <style scoped></style>

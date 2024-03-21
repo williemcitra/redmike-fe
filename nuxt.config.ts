@@ -3,5 +3,5 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['nuxt-medusa',  'nuxt-primevue', '@pinia/nuxt'],
   css: ['/node_modules/primeflex/primeflex.css', '@/assets/css/style.css'],
-  ssr: false
+  ssr: true
 })

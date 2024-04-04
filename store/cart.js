@@ -9,6 +9,15 @@ export const useCartStore = defineStore('cart', {
   actions: {
     setCart(cart) {
       this.cart = cart
+      console.log(this.cart)
+    },
+    async completeCart (id) {
+      const client = useMedusaClient();
+      return await client.carts.complete(id)
+    },
+    async retrieveCart (id) {
+      const client = useMedusaClient();
+      return await client.carts.retrieve(id)
     },
     async createCart () {
       const client = useMedusaClient();

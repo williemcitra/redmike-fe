@@ -1,0 +1,23 @@
+$primaryColor: #fa0800 !default;
+$primaryColor50: #fff0f0 !default;
+$primaryColor100: #ffdedd !default;
+$primaryColor200: #ffc2c0 !default;
+$primaryColor300: #ff9794 !default;
+$primaryColor400: #ff5c57 !default;
+$primaryColor500: #ff2a23 !default;
+$primaryColor600: #fa0800 !default;
+$primaryColor700: #d70700 !default;
+$primaryColor800: #b10903 !default;
+$primaryColor900: #920e0a !default;
+$primaryDarkColor: #d70700 !default;
+$primaryDarkerColor: #b10903 !default;
+$primaryTextColor: #ffffff !default;
+
+$highlightBg: #fffbeb !default;
+$highlightTextColor: $primaryColor800 !default;
+$highlightFocusBg: rgba($primaryColor, .24) !default;
+
+@import '../_variables';
+@import './fonts/';
+@import '../theme-base/_components';
+@import '../extensions/extensions';

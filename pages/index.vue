@@ -21,51 +21,70 @@
     </div>
     <div class="col-12 grid layout-margin">
       <div class="col-12 flex flex-row justify-content-between">
-        <div class="text-xl font-bold">Most Popular</div>
-        <div class="text-primary font-medium cursor-pointer">Lihat Semua</div>
+        <div class="text-xl font-bold">Matchbox Terbaru</div>
+        <!-- <div class="text-primary font-medium cursor-pointer">Lihat Semua</div> -->
       </div>
       <div class="col-12">
-        <ProductSections :products="products" />
+        <ProductSections :products="matchBoxProducts.products" />
       </div>
     </div>
     <div class="col-12 grid layout-margin">
       <div class="col-12 flex flex-row justify-content-between">
-        <div class="text-xl font-bold">Most Popular</div>
-        <div class="text-primary font-medium cursor-pointer">Lihat Semua</div>
+        <div class="text-xl font-bold">Hot Wheels Terbaru</div>
+        <!-- <div class="text-primary font-medium cursor-pointer">Lihat Semua</div> -->
       </div>
       <div class="col-12">
-        <ProductSections :products="products" />
+        <ProductSections :products="hotWheelsProducts.products" />
       </div>
     </div>
-    <div class="col-12 grid layout-margin">
-      <div class="col-12 text-xl font-bold">All Items</div>
-      <div class="col-12">
-        <ProductSections :products="products" />
+    <!-- <div class="col-12">
+      <div v-for="(product, index) in products.products">
+        {{ product.id }} {{ index }}
       </div>
-    </div>
-    <div class="col-12 ">
-      <div class="surface-section px-4 py-8 md:px-6 lg:px-8">
-        <div class="text-700 text-center">
-          <div class="text-blue-600 font-bold mb-3"><i class="pi pi-discord"></i>&nbsp;POWERED BY DISCORD</div>
-          <div class="text-900 font-bold text-5xl mb-3">Join Our Design Community</div>
-          <div class="text-700 text-2xl mb-5">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Velit numquam
-            eligendi quos.</div>
-          <Button label="Join Now" icon="pi pi-discord"
-            class="font-bold px-5 py-3 p-button-raised p-button-rounded white-space-nowrap"></Button>
+    </div> -->
+    <div class="col-12 layout-margin grid bg-primary-700 py-4">
+      <div class="col-12 text-xl font-bold text-50">Semua Item</div>
+      <div class="col-12 w-full flex-column" style="overflow-y: hidden;">
+        <div class="flex flex-row flex-wrap gap-3">
+          <div v-for="product in products.products" :key="product.id" class="col-6 md:col-4 lg:col-3 grid">
+            <!-- {{product.id}} -->
+            <ProductCard :product="product" />
+          </div>
         </div>
       </div>
     </div>
+    <div class="col-12 layout-margin flex flex-row flex-wrap" ref="el">
+    </div>
   </div>
+
 </template>
 
 
-<script setup lang="ts">
+<script setup>
 import ProductSections from '@/components/scrollable/ProductSections.vue';
+import { useInfiniteScroll } from '@vueuse/core'
 
-// definePageMeta({
-//   layout: 'default'
-// })
+const { data: products } = await useFetch('/api/products?limit=3&offset=0')
+const { data: hotWheelsProducts } = await useFetch('/api/products?q=hot wheels')
+const { data: matchBoxProducts } = await useFetch('/api/products?q=matchbox')
 
-const client = useMedusaClient();
-const { products } = await client.products.list();
+const el = ref(null)
+const infiniteData = ref([1])
+const offset = ref(1)
+
+onMounted(async () => {
+  useInfiniteScroll(
+    el,
+    async () => {
+      const fetch = await $fetch('/api/products?limit=3&offset=' + offset.value)
+      // console.log(offset.value)
+      offset.value = offset.value + 3
+
+      console.log(fetch.products.length, products.value.products.length)
+      products.value.products.push(...fetch.products)
+      // console.log(products.value.products.length)
+    }
+  )
+})
+
 </script>

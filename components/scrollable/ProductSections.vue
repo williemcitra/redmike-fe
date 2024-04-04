@@ -1,6 +1,6 @@
 <template>
   <vue-horizontal class="horizontal">
-    <section class="item cursor-pointer" v-for="product in products">
+    <section class="item" v-for="product in products">
       <ProductCard :product="product" />
     </section>
   </vue-horizontal>
@@ -83,7 +83,7 @@ main {
 <!-- Responsive Breakpoints -->
 <style scoped>
 .horizontal {
-  --count: 3;
+  --count: 2;
   --gap: 16px;
   --margin: 24px;
 }
@@ -96,21 +96,21 @@ main {
 
 @media (min-width: 768px) {
   .horizontal {
-    --count: 4;
+    --count: 3.5;
     --margin: 0;
   }
 }
 
 @media (min-width: 1024px) {
   .horizontal {
-    --count: 5;
+    --count: 4;
   }
 }
 
 @media (min-width: 1280px) {
   .horizontal {
     --gap: 24px;
-    --count: 6;
+    --count: 5;
   }
 }
 </style>

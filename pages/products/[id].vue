@@ -1,61 +1,71 @@
 <template>
   <div class="layout-margin flex flex-column gap-3 mt-4">
     <div class="flex flex-row flex-column lg:flex-row justify-content-start gap-3">
-      <!-- <img class="border-round" style="max-width: 480px; height: auto;" :src="product.thumbnail"> -->
-      <div class="col-12 lg:col-6">
-        <Galleria v-if="product.images && product.images.length > 0" :value="product.images" :responsiveOptions="responsiveOptions" :numVisible="5"
-        >
-        <template #item="slotProps">
-          <img :src="slotProps.item.url" :alt="slotProps.item.alt" style="width: 100%; min-height: 480px; max-height: 480px" />
-        </template>
+      <div class="col-12 lg:col-4">
+        <!-- {{ data.images }} -->
+        <Galleria v-if="data.images && data.images.length > 0" :value="data.images" :responsiveOptions="responsiveOptions" :numVisible="5"
+          >
+          <template #item="slotProps">
+            <img :src="slotProps.item.url" :alt="slotProps.item.alt" style="width: 100%; height: 100%; aspect-ratio: 1;" />
+          </template>
 
-        <template #thumbnail="slotProps">
-          <img style="max-width: 100px;" :src="slotProps.item.url" :alt="slotProps.item.alt" />
-        </template>
-      </Galleria>
+          <template #thumbnail="slotProps">
+            <img style="max-width: 64px;" :src="slotProps.item.url" :alt="slotProps.item.alt" />
+          </template>
+        </Galleria>
       </div>
       <div class="flex flex-column col-12 lg:col-6 gap-4">
         <div class="flex flex-column gap-2">
-          <div class="text-3xl font-medium text-900">
-            {{ product.title }}
+          <div v-if="data && data.title" class="text-2xl font-bold text-900">
+            {{ data.title }}
           </div>
-          <div class="text-600">By Bandai</div>
-        </div>
-        <div class="flex flex-column gap-2">
-          <!-- <span class="text-sm text-700">Harga</span> -->
-          <span v-if="product && product.variants" class="text-2xl text-primary font-bold">Rp {{
-        product?.variants[0]?.prices[0]?.amount }}</span>
-        </div>
-        <div class="flex flex-row align-items-end gap-3">
+          <!-- <div v-if="data && data.metadata && data.metadata.manufacturer" class="text-600">By {{ data.metadata.manufacturer }}</div> -->
           <div class="flex flex-column gap-2">
-            <small>Qty.</small>
-            <Dropdown v-model="order.quantity" class="h-3rem align-items-center" placeholder="Quantity" :options="quantityOptions" />
+            <span v-if="data && data.variants" class="text-2xl text-primary font-bold">
+              Rp {{ formatPriceIDR(data?.variants[0]?.prices[0]?.amount) }}
+            </span>
           </div>
-          <Button class="w-full h-3rem" label="Add to Cart" @click="updateCart" />
-          <Button class="w-full h-3rem" type="button" label="Wishlist" icon="pi pi-heart-fill" badge="2" badgeSeverity="primary" outlined />
-          <!-- <Button class="w-full h-3rem" label="Wishlist" outlined>
-            <i class="pi pi-heart-fill mr-2"></i>
-            Add to wishlist
-          </Button> -->
+          <!-- {{ route.params }}sad -->
+          <p class="line-height-4 text-sm" v-html="data.description"></p>
+        </div>
+
+        <div class="flex flex-row align-items-end gap-3">
+          <!-- <div class="flex flex-column gap-2">
+            <small>Qty.</small>
+            <Dropdown v-model="quantity" class="h-3rem align-items-center" placeholder="Quantity" :options="quantityOptions" />
+          </div> -->
+          <a target="_blank" :href="'https://wa.me/085929850933?text=Halo%20Redmike,%20Saya%20ingin%20order%20produk%20' + data.title">
+            <Button class="h-3rem" label="Order By Whatsapp" icon="pi pi-whatsapp"click="updateCart" />
+          </a>
+            <!-- <Button class="w-full h-3rem" type="button" label="Wishlist" icon="pi pi-heart-fill" badge="2" badgeSeverity="primary" outlined /> -->
+            <!-- <Button class="w-full h-3rem" label="Wishlist" outlined>
+              <i class="pi pi-heart-fill mr-2"></i>
+              Add to wishlist
+            </Button> -->
         </div>
         <div class="flex flex-row gap-2">
-          <Button icon="pi pi-link" severity="secondary"></Button>
-          <Button icon="pi pi-whatsapp" severity="secondary"></Button>
+          <Button icon="pi pi-link" severity="secondary" @click="copyToClipboard"></Button>
+          <!-- <Button icon="pi pi-whatsapp" severity="secondary"></Button>
           <Button icon="pi pi-facebook" severity="secondary"></Button>
-          <Button icon="pi pi-instagram" severity="secondary"></Button>
-          <!-- <Button icon="pi pi-twitter" severity="secondary"></Button> -->
+          <Button icon="pi pi-instagram" severity="secondary"></Button> -->
         </div>
+
         <div class="flex flex-column gap-2">
-          <div v-for="(value, key) in product.metadata">
-            {{ key }}: {{ value }}
+          <div>Tags: </div>
+          <div class="flex flex-row gap-2">
+            <div v-for="(tag, index) in data.tags">
+              <Button :label="tag.value" severity="secondary" @click="goToSearchByTag(index)"></Button>
+            </div>
           </div>
         </div>
-        <!-- <div>
-          <p class="line-height-4 text-sm" v-html="product.description">
-          </p>
+        <!-- <div class="flex flex-column gap-2">
+          <div v-for="(value, key) in data.metadata">
+            {{ key }}: {{ value }}
+          </div>
         </div> -->
       </div>
     </div>
+    <!-- {{ similiarProducts }} -->
     <div v-if="similiarProducts.length > 0" class="flex flex-column gap-2 mt-6">
       <div class="text-xl font-bold">Similiar Products</div>
       <ProductSections :products="similiarProducts"></ProductSections>
@@ -64,48 +74,44 @@
 </template>
 
 <script setup>
-const client = useMedusaClient();
+// const client = useMedusaClient();
 import ProductSections from '@/components/scrollable/ProductSections.vue';
-import { useCartStore } from '~/store/cart';
-
+// import { useCartStore } from '~/store/cart';
+const toast = useToast()
 definePageMeta({
   layout: 'default'
 })
-const cartStore = useCartStore()
-const order = ref({
-  quantity: 1
-})
-const quantityOptions = ref([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-const route = useRoute()
-const product = ref([])
+
+const route = useRouter().currentRoute.value
+const router = useRouter()
 const similiarProducts = ref([])
+const { data } = await useFetch('/api/products/' + route.params.id)
 
 onMounted(async () => {
-
-  // setCartId()
-  const handle = route.params.id
-  const fetch = await client.products.list({ handle });
-  if (fetch?.response?.status === 200 && fetch?.products.length > 0) {
-    console.log(fetch.products)
-    product.value = fetch.products[fetch.products.findIndex(product => product.handle.includes(handle))]
-  }
-  const fetchSimiliarProducts = await client.products.list();
-  console.log(fetchSimiliarProducts)
-  if (fetchSimiliarProducts?.response?.status === 200 && fetchSimiliarProducts?.products.length > 0) {
-    similiarProducts.value = fetchSimiliarProducts.products
+  try {
+    const id = data.value.tags[0].id
+    if (id) {
+      let fetchSimiliarProducts = await $fetch(`/api/products?tags=${id}&limit=5`)
+      similiarProducts.value = fetchSimiliarProducts.products.filter(similiarProduct => similiarProduct.id !== data.value.id)
+    }
+  } catch(e) {
+    console.log(e)
   }
 })
 
-async function createCart() {
-  const response = await cartStore.createCart()
-  cartStore.setCart(response.cart)
+function copyToClipboard() {
+  window.navigator.clipboard.writeText('asd');
+  toast.add({
+    summary: 'Berhasil Copy URL',
+    severity: 'secondary',
+    life: 5000,
+    title: 'Berhasil Copy URL'
+  })
 }
 
-async function updateCart() {
-  // console.log(product.value.variants[0].id)
-  const cartId = cartStore.cart.id
-  if (!cartId) await createCart()
-  const response = await cartStore.addItemToCart(cartId, {variant_id: product.value.variants[0].id, quantity: 1})
-  cartStore.setCart(response.cart)
+function goToSearchByTag(index) {
+  const id = data.value.tags[index].id
+  router.push('/search?tags=' + id)
 }
+
 </script>

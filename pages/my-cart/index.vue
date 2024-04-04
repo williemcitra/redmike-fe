@@ -2,7 +2,7 @@
   <div class="grid layout-margin gap-3">
     <div class="col-6">
       <div class="grid">
-        <!-- {{cartStore}} -->
+        {{cartStore}}
         <div class="col-12 text-2xl font-medium">
           Keranjang Anda
         </div>
@@ -41,7 +41,7 @@
               <div class="col-auto text-xl font-bold">Total</div>
               <div class="col-auto font-bold">Rp {{ cartStore.cart.total }}</div>
             </div>
-            <Button label="Checkout"></Button>
+            <Button label="Checkout" @click="completeCart"></Button>
           </div>
         </template>
       </Card>
@@ -65,6 +65,11 @@ const total = computed(() => {
 async function updateCartQuantity(item) {
   console.log(item)
   const response = await cartStore.updateItemQuantityToCart(cartStore.cart.id, item.id, item.quantity)
+  cartStore.setCart(response.cart)
+}
+
+async function completeCart() {
+  const response = await cartStore.completeCart(cartStore.cart.id)
   cartStore.setCart(response.cart)
 }
 
